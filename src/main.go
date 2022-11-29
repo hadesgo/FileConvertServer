@@ -11,7 +11,17 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hadesgo/FileConvertServer/src/session"
+	_ "github.com/hadesgo/FileConvertServer/src/session/providers/memory"
 )
+
+var globalSessions *session.Manager
+
+func init() {
+	globalSessions, _ = session.NewManager("memory", "gosessionid", 3600)
+	go globalSessions.GC()
+}
 
 func sayhelloName(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
@@ -27,38 +37,43 @@ func sayhelloName(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	var sessionToken string
+	sess := globalSessions.SessionStart(w, r)
+	// var sessionToken string
 	fmt.Println("method: ", r.Method)
 	if r.Method == "GET" {
-		timestamp := strconv.Itoa(time.Now().Nanosecond())
-		hashWr := md5.New()
-		hashWr.Write([]byte(timestamp))
-		token := fmt.Sprintf("%x", hashWr.Sum(nil))
-		sessionToken = token
+		// timestamp := strconv.Itoa(time.Now().Nanosecond())
+		// hashWr := md5.New()
+		// hashWr.Write([]byte(timestamp))
+		// token := fmt.Sprintf("%x", hashWr.Sum(nil))
+		// sessionToken = token
 
 		t, _ := template.ParseFiles("webpage/login.html")
-		t.Execute(w, token)
+		w.Header().Set("Content-Type", "text/html")
+		t.Execute(w, sess.Get("username"))
+		// t.Execute(w, token)
 	} else {
 		err := r.ParseForm()
 		if err != nil {
 			log.Fatal("ParseForm: ", err)
 		}
-		token := r.Form.Get("token")
-		if token != "" {
-			if token != sessionToken {
-				fmt.Println("token error: token check failed")
-				fmt.Println("token: ", token)
-				fmt.Println("sessionToken: ", sessionToken)
-			} else {
-				fmt.Println("token: ", token)
-			}
-		} else {
-			fmt.Println("token error: token is null")
-		}
-		fmt.Println("username length:", len(r.Form["username"][0]))
-		fmt.Println("username:", template.HTMLEscapeString(r.Form.Get("username")))
-		fmt.Println("password:", template.HTMLEscapeString(r.Form.Get("password")))
-		template.HTMLEscape(w, []byte(r.Form.Get("username")))
+		sess.Set("username", r.Form["username"])
+		http.Redirect(w, r, "/", 302)
+		// token := r.Form.Get("token")
+		// if token != "" {
+		// 	if token != sessionToken {
+		// 		fmt.Println("token error: token check failed")
+		// 		fmt.Println("token: ", token)
+		// 		fmt.Println("sessionToken: ", sessionToken)
+		// 	} else {
+		// 		fmt.Println("token: ", token)
+		// 	}
+		// } else {
+		// 	fmt.Println("token error: token is null")
+		// }
+		// fmt.Println("username length:", len(r.Form["username"][0]))
+		// fmt.Println("username:", template.HTMLEscapeString(r.Form.Get("username")))
+		// fmt.Println("password:", template.HTMLEscapeString(r.Form.Get("password")))
+		// template.HTMLEscape(w, []byte(r.Form.Get("username")))
 	}
 }
 
