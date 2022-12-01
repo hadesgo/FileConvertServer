@@ -5,8 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hadesgo/FileConvertServer/common"
-	"github.com/hadesgo/FileConvertServer/controller"
-	"github.com/hadesgo/FileConvertServer/middleware"
+	"github.com/hadesgo/FileConvertServer/router"
 	"github.com/spf13/viper"
 )
 
@@ -14,11 +13,14 @@ func main() {
 	InitConfig()
 	common.InitDB()
 	r := gin.Default()
-	r.Use(middleware.CORSMiddleware())
-	r.POST("/api/auth/register", controller.Register)
-	r.POST("/api/auth/login", controller.Login)
-	r.GET("/api/auth/info", middleware.AuthMiddleware(), controller.Info)
-	r.Run()
+	r = router.CollectRoute(r)
+
+	// 监听端口
+	port := viper.GetString("server.port")
+	if port != "" {
+		panic(r.Run(":" + port))
+	}
+	panic(r.Run())
 }
 
 func InitConfig() {

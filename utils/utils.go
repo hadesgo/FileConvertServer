@@ -13,7 +13,7 @@ func VerifyEmailFormat(email string) bool {
 }
 
 func RandomString(n int) string {
-	var letters = []byte("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM")
+	var letters = []byte("qwertyuiopasdfghjklzxcvbnmQWERTYUIOPASDFGHJKLZXCVBNM1234567890.+-*/=")
 	result := make([]byte, n)
 
 	rand.Seed(time.Now().Unix())
