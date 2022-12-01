@@ -1,0 +1,10 @@
+server:
+  port: 9090
+datasource:
+  host: 127.0.0.1
+  port: 3306
+  database: file_server
+  username: root
+  password: 123456
+  charset: utf8mb4
+  loc: Asia/Shanghai
