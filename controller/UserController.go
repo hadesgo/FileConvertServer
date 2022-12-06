@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -20,7 +19,6 @@ func Register(ctx *gin.Context) {
 
 	var ginBindUser = models.User{}
 	ctx.Bind(&ginBindUser)
-	fmt.Printf("ginBindUser: %v", ginBindUser)
 
 	name := ginBindUser.Name
 	email := ginBindUser.Email
@@ -69,8 +67,11 @@ func Register(ctx *gin.Context) {
 func Login(ctx *gin.Context) {
 	db := common.GetDB()
 	// 获取参数
-	email := ctx.PostForm("email")
-	password := ctx.PostForm("password")
+	var ginBindUser = models.User{}
+	ctx.Bind(&ginBindUser)
+
+	email := ginBindUser.Email
+	password := ginBindUser.Password
 
 	// 数据验证
 	if !utils.VerifyEmailFormat(email) {
