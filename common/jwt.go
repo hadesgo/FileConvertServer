@@ -3,7 +3,7 @@ package common
 import (
 	"time"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/hadesgo/FileConvertServer/models"
 )
 
@@ -33,7 +33,7 @@ func ReleaseToken(user models.User) (string, error) {
 	return tokenString, err
 }
 
-func ParseToken(tokenString string) (*jwt.Token, *Claims, error )  {
+func ParseToken(tokenString string) (*jwt.Token, *Claims, error) {
 	claims := &Claims{}
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
